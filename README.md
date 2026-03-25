@@ -263,4 +263,4 @@ KL 惩罚项约束 GRPO 训练后的策略不要偏离 SFT 初始化太远，防
 
 ## 项目价值总结
 
-这个项目完整覆盖了当前 LLM 后训练的核心技术链路：**数据构造 → SFT 冷启动 → GRPO 强化 → 可量化评测**，使用的技术栈（verl、GRPO、verifiable reward）与 DeepSeek-R1 的训练范式高度一致，在 MLE 求职中能够体现对前沿训练技术的实际动手能力。
+这个项目完整覆盖了当前 LLM 后训练的核心技术链路：**数据构造 → SFT 冷启动 → GRPO 强化 → 可量化评测**，使用的技术栈（verl、GRPO、verifiable reward）与 DeepSeek-R1 的训练范式高度一致。
