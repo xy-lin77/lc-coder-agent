@@ -36,19 +36,24 @@
 ---
 
 ## 3. 交互流程
-1. **Actor 生成回复**
-   $y \sim \pi_\theta(y|x)$
-2. **Reward Model 给回复打分**
-   输出 $r(x, y)$
+1. **Actor 生成回复**  
+   \( y \sim \pi_\theta(y|x) \)
+
+2. **Reward Model 给回复打分**  
+   输出 \( r(x, y) \)
+
 3. **Reference 计算 KL 惩罚**
-   - 惩罚项：$\beta \cdot KL[\pi_\theta \ || \ \pi_{ref}]$
-   - 最终 reward：$r(x, y) - \beta \cdot KL$
+   - 惩罚项：\( \beta \cdot KL[\pi_\theta \ || \ \pi_{ref}] \)
+   - 最终 reward：\( r(x, y) - \beta \cdot KL \)
+
 4. **Critic 估计每个 token 位置的 value**
-   - 输出 $V(s_t)$
-   - 用 GAE 计算 Advantage：$A_t = r + \gamma V(s_{t+1}) - V(s_t)$
+   - 输出 \( V(s_t) \)
+   - 用 GAE 计算 Advantage：\( A_t = r + \gamma V(s_{t+1}) - V(s_t) \)
+
 5. **PPO-Clip 更新 Actor**
-   - 损失：$L = \min(ratio \cdot A, \text{clip}(ratio, 1\pm\varepsilon) \cdot A)$
-   - 其中 $ratio = \frac{\pi_\theta(a|s)}{\pi_{\theta_{old}}(a|s)}$
+   - 损失：\( L = \min(ratio \cdot A, \text{clip}(ratio, 1\pm\varepsilon) \cdot A) \)
+   - 其中 \( ratio = \frac{\pi_\theta(a|s)}{\pi_{\theta_{old}}(a|s)} \)
+
 6. **同时更新 Critic**
    - 用 MSE loss 拟合 value 估计值
 
