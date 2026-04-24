@@ -37,7 +37,7 @@
 
 ## 3. 交互流程
 1. **Actor 生成回复**  
- $$ y \sim \pi_\theta(y|x) $$
+ $$y \sim \pi_\theta(y|x)$$
 
 2. **Reward Model 给回复打分**  
  输出 $$ r(x, y) $$
