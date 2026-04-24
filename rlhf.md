@@ -5,7 +5,7 @@
 - **Critic**：基于 SFT 模型，逻辑复杂，暂略；可与 Reward 共享 Backbone
 - **Reference**：采用 SFT 阶段训练完成的模型
 - **Reward Model (RM)**：依托 SFT 模型，在最后一个 Token 的隐层状态上拼接 Value 头并微调
-  - 损失公式：$$L = -\log(r(x,y_{winner}) - r(x,y_{loser}))$$
+  - Loss: $$L = -\log(r(x,y_{winner}) - r(x,y_{loser}))$$
 
 ---
 
