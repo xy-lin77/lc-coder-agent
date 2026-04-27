@@ -1,9 +1,9 @@
 # PPO
 
 ## 1. 四个模型
-- **Actor**：基于 SFT 训练后的模型
-- **Critic**：基于 SFT 模型，逻辑复杂，暂略；可与 Reward 共享 Backbone
-- **Reference**：采用 SFT 阶段训练完成的模型
+- **Actor**：基于 SFT 训练后的模型，待优化的目标模型
+- **Critic**：基于 SFT 模型，逻辑复杂，暂略
+- **Reference**：冻结 SFT 训练完成的模型
 - **Reward Model (RM)**：依托 SFT 模型，在最后一个 Token 的隐层状态上拼接 Value 头并微调
   - Loss: $$L = -\log(r(x,y_{winner}) - r(x,y_{loser}))$$
 
@@ -58,3 +58,47 @@
  - 用 MSE loss 拟合 value 估计值
 
 > 注：原生流程显存压力极大，需同时在 GPU 上维护 4 个大模型（Actor / Reference / Reward / Critic），工程中通常采用上述显存优化策略。
+
+---
+
+# DPO
+
+## 1. 两个模型
+- **Policy**：基于 SFT 训练后的模型，待优化的目标模型（对应PPO Actor）
+- **Reference**：同 PPO
+- **剔除组件**：完全移除 Reward Model、Critic 两大模型，无价值估计、优势函数计算
+
+---
+
+## 2. 微调方式
+### 2.1 学术标准做法（原生DPO）
+- **全量微调**：Policy全量更新，Reference全程冻结
+- 优势：无需训练奖励模型，端到端直接优化偏好，流程极简
+
+### 2.2 工程实践（显存极致优化）
+#### 策略 1：Policy用LoRA微调，Reference冻结
+- 仅训练Policy的LoRA适配器，主干权重冻结
+- 显存占用：仅需1份完整模型权重+小体积LoRA，相比PPO降低75%
+
+#### 策略 2：单卡适配方案
+- 推理/训练共享计算图，Reference仅前向计算无梯度
+- 适配7B/13B模型单卡微调，无需ZeRO3分布式
+
+#### 策略 3：合并推理加速
+- 训练完成后将LoRA权重合并至Policy，直接部署，无额外推理开销
+
+---
+
+## 3. 交互流程（无强化学习循环，一步训练）
+1. **输入构造**：给定指令x，采样一对回复$(y_w, y_l)$，$y_w$为偏好优胜回复，$y_l$为劣等回复
+2. **双模型前向计算**
+   - Policy：计算对数概率$\log\pi_\theta(y_w|x)、\log\pi_\theta(y_l|x)$
+   - Reference：计算对数概率$\log\pi_{ref}(y_w|x)、\log\pi_{ref}(y_l|x)$
+3. **核心偏好损失计算（无KL惩罚显式计算）**
+   - 损失：$L_{DPO} = -\mathbb{E}_{(x,y_w,y_l)}[\log\sigma(\beta(\log\frac{\pi_\theta(y_w|x)}{\pi_{ref}(y_w|x)} - \log\frac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)}))]$
+   - $\beta$：温度系数，平衡参考模型约束
+4. **参数更新**
+   - 直接反向传播更新Policy，Reference全程冻结
+   - 无PPO的Clip、GAE、多模型交替更新流程
+
+> 注：相比PPO四模型并行，DPO仅需2个模型且无RL循环，训练速度提升10-100倍，显存消耗降低70%以上，是工业界主流偏好优化方案
