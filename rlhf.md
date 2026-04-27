@@ -43,7 +43,7 @@
  输出 $$r(x, y)$$
 
 3. **Reference 计算 KL 惩罚**
- - 惩罚项： $$\beta \cdot KL[\pi_\theta \ || \ \pi_{ref}]$$
+ - 惩罚项： $$\beta \cdot KL[\pi_\theta ||\pi_{ref}]$$
  - 最终 reward： $$r(x, y) - \beta \cdot KL$$
 
 4. **Critic 估计每个 token 位置的 value**
