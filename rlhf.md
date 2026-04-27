@@ -90,15 +90,39 @@
 ---
 
 ## 3. 交互流程（无强化学习循环，一步训练）
-1. **输入构造**：给定指令x，采样一对回复 $$(y_w, y_l)$$ ， $$y_w$$ 为偏好优胜回复， $$y_l$$ 为劣等回复
-2. **双模型前向计算**
-   - Policy：计算对数概率 $$\log\pi_\theta(y_w|x)、\log\pi_\theta(y_l|x)$$
-   - Reference：计算对数概率 $$\log\pi_{ref}(y_w|x)、\log\pi_{ref}(y_l|x)$$
-3. **核心偏好损失计算（无KL惩罚显式计算）**
-   - 损失：  $$L_{DPO} = -\mathbb{E}_{(x,y_w,y_l)}[\log\sigma(\beta(\log\frac{\pi_\theta(y_w|x)}{\pi_{ref}(y_w|x)} - \log\frac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)}))]$$
-   -  $$\beta$$ ：温度系数，平衡参考模型约束
-4. **参数更新**
-   - 直接反向传播更新Policy，Reference全程冻结
-   - 无PPO的Clip、GAE、多模型交替更新流程
 
-> 注：相比PPO四模型并行，DPO仅需2个模型且无RL循环，训练速度提升10-100倍，显存消耗降低70%以上，是工业界主流偏好优化方案
+1. **输入构造**：给定指令 $x$，采样一对回复 $(y_w, y_l)$，其中 $y_w$ 为偏好优胜回复，$y_l$ 为劣等回复。
+
+2. **双模型前向计算**
+   - **Policy**：计算对数概率 $\log \pi_\theta(y_w \mid x)$、$\log \pi_\theta(y_l \mid x)$
+   - **Reference**：计算对数概率 $\log \pi_{\text{ref}}(y_w \mid x)$、$\log \pi_{\text{ref}}(y_l \mid x)$
+
+3. **核心偏好损失计算（无 KL 惩罚显式计算）**
+
+   损失函数为：
+
+   $$
+   L_{\text{DPO}}
+   =
+   -\mathbb{E}_{(x,y_w,y_l)}
+   \left[
+   \log \sigma
+   \left(
+   \beta
+   \left(
+   \log \frac{\pi_\theta(y_w \mid x)}{\pi_{\text{ref}}(y_w \mid x)}
+   -
+   \log \frac{\pi_\theta(y_l \mid x)}{\pi_{\text{ref}}(y_l \mid x)}
+   \right)
+   \right)
+   \right]
+   $$
+
+   其中 $\beta$ 为温度系数，用于平衡参考模型约束。
+
+4. **参数更新**
+   - 直接反向传播更新 **Policy**
+   - **Reference** 全程冻结
+   - 无 PPO 中的 Clip、GAE、多模型交替更新流程
+
+> 注：相比 PPO 四模型并行，DPO 仅需 2 个模型且无 RL 循环，训练速度更快，显存消耗更低，是工业界常用的偏好优化方案。
