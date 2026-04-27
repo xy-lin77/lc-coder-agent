@@ -96,7 +96,7 @@
    - Reference：计算对数概率 $$\log\pi_{ref}(y_w|x)、\log\pi_{ref}(y_l|x)$$
 3. **核心偏好损失计算（无KL惩罚显式计算）**
    - 损失： $$L_{DPO} = -\mathbb{E}_{(x,y_w,y_l)}[\log\sigma(\beta(\log\frac{\pi_\theta(y_w|x)}{\pi_{ref}(y_w|x)} - \log\frac{\pi_\theta(y_l|x)}{\pi_{ref}(y_l|x)}))]$$
-   - $$\beta$$：温度系数，平衡参考模型约束
+   -  $$\beta$$ ：温度系数，平衡参考模型约束
 4. **参数更新**
    - 直接反向传播更新Policy，Reference全程冻结
    - 无PPO的Clip、GAE、多模型交替更新流程
