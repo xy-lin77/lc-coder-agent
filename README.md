@@ -187,36 +187,10 @@ Benchmark：
 
 ---
 
-## Slurm 作业提交
-
-### 交互式调试
+## 正式训练（批处理）
 
 ```bash
-srun --account=mscbdtsuperpod \
-     --partition=normal \
-     --nodes=1 \
-     --gpus-per-node=4 \
-     --time=08:00:00 \
-     --pty bash
-```
-
-### 正式训练（批处理）
-
-```bash
-# train.sh
-#!/bin/bash
-#SBATCH --account=mscbdtsuperpod
-#SBATCH --partition=normal
-#SBATCH --nodes=1
-#SBATCH --gpus-per-node=4
-#SBATCH --time=24:00:00
-#SBATCH --output=logs/%j.out
-
 python -m verl.trainer.main_ppo ...
-```
-
-```bash
-sbatch train.sh
 ```
 
 ---
