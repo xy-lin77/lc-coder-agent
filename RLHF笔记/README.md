@@ -47,7 +47,7 @@
    <br> Actor PPO-Clip 损失： $L = \min(\text{ratio} \cdot A, \text{clip}(\text{ratio}, 1-\epsilon, 1+\epsilon) \cdot A)$ ，其中 $\text{ratio} = \dfrac{\pi_\theta(a \mid s)}{\pi_{\theta_{\text{old}}}(a \mid s)}$
    <br> Critic MSE 损失： $L = \mathbb{E}\big[(V_t - V_t^{target})^2\big]$
 
-6. 循环迭代，进入下一轮采样更新
+6. **循环迭代，进入下一轮采样更新**
 
 ---
 
