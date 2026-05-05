@@ -29,26 +29,26 @@
 ---
 
 ## 3. 交互流程
-
 1. **Actor 生成回复**  
-   $y \sim \pi_\theta(y \mid x)$
+   固定旧策略 $\pi_{\theta_{\text{old}}}$，采样得到完整回复：$y \sim \pi_{\theta_{\text{old}}}(y \mid x)$
 
-2. **Reward Model 给回复打分**  
-   $r(x, y)$
+2. **Reward Model 给出全局偏好分数**  
+   输出单条序列原始奖励：$r(x, y)$
 
-3. **Reference 计算 KL 惩罚**
-   <br> 惩罚项： $\beta \cdot \text{KL}(\pi_\theta \parallel \pi_{\text{ref}})$
-   <br> 最终 reward： $r(x, y) - \beta \cdot \text{KL}$
+3. **Reference 计算 KL 约束惩罚**
+   <br> 逐token惩罚项：$\beta \cdot \text{KL}(\pi_{\theta_{\text{old}}} \parallel \pi_{\text{ref}})$
+   <br> 单token最终奖励：$r_t = r(x,y) - \beta \cdot \text{KL}$
 
-4. **Critic 估计每个 token 位置的 value**
-   <br> 输出： $V(s_t)$
-   <br> 用 GAE 计算 Advantage： $A_t = r + \gamma \cdot V(s_{t+1}) - V(s_t)$
+4. **Critic 逐Token预测状态价值 & 计算GAE优势**
+   <br> 逐时刻输出状态价值：$V(s_t)$
+   <br> 基于时序折扣与回溯，用 GAE 计算优势函数 $A_t$ 与价值目标 $V_t^{target}$
 
-5. **PPO-Clip 更新 Actor**
-   <br> 损失： $L = \min(\text{ratio} \cdot A, \text{clip}(\text{ratio}, 1-\epsilon, 1+\epsilon) \cdot A)$ ，其中 $\text{ratio} = \dfrac{\pi_\theta(a \mid s)}{\pi_{\theta_{\text{old}}}(a \mid s)}$
+5. **同时更新 Actor 和 Critic 权重**
+   <br> Actor PPO-Clip 损失：$L_{\text{actor}} = \mathbb{E}\Big[\min\big(\text{ratio}_t A_t,\ \text{clip}(\text{ratio}_t,1-\varepsilon,1+\varepsilon)A_t\big)\Big]$
+   <br> $\text{ratio}_t = \dfrac{\pi_\theta(a_t \mid s_t)}{\pi_{\theta_{\text{old}}}(a_t \mid s_t)}$
+   <br> Critic MSE 损失：$L_{\text{critic}} = \mathbb{E}\big[(V(s_t) - V_t^{target})^2\big]$
 
-6. **同时更新 Critic**
-   <br> 损失： $L = \mathbb{E}\big[(V_t - V_t^{target})^2\big]$
+6. 循环迭代，进入下一轮采样更新
 
 ---
 
