@@ -13,16 +13,15 @@
 
 ## 2. 微调方式
 
-### 2.1 学术标准做法（论文实现）
+### 2.1 学术论文实现
 - **全量微调**（如 InstructGPT、Llama 2）
   - Reward Model = SFT backbone 全量更新 + value head
   - Critic = SFT backbone 全量更新 + value head
   - 原因：Backbone 需要从“生成表示”转变为“评判表示”，全量微调效果最优
 
-### 2.2 工程实践（显存妥协）
-#### 核心最优方案：PPO 权重共享 + ZeRO3 + LoRA
-统一整合显存优化逻辑，摒弃多套独立权重冗余部署，采用分组权重共享架构：
-1. 权重复用设计：Actor 与 Reference 共享同一 SFT 主干底座，仅通过开关 LoRA 适配器区分训练与推理状态；Critic 与 Reward Model 共享主干权重，大幅削减完整模型权重占用，将显存常驻权重压缩至2份。
+### 2.2 工程实践
+#### 显存妥协方案：PPO 权重共享 + ZeRO3 + LoRA
+1. 权重复用设计：Actor 与 Reference 共享同一 SFT 主干底座，仅通过开关 LoRA 适配器区分训练与推理状态；Critic 与 Reward Model 共享主干权重。显存常驻权重减少至2份。
 2. LoRA 轻量化训练：Actor、Critic、RM 均冻结 SFT 主干，仅训练 LoRA 适配器与 Critic/RM 专属 Value 头，大幅降低可训练参数量，减少梯度、优化器显存开销，避免全量微调显存爆炸。
 3. DeepSpeed ZeRO3 分布式加持：结合权重分片、显存卸载、梯度分片能力，进一步分摊多卡显存压力，完美适配 7B/13B/34B 主流大模型。
 4. 独立小尺寸奖励模型：采用小规格独立 RM（如 1.5B 小模型）替代与 Actor 同尺寸权重，无需占用大模型显存资源，仅负责偏好打分，进一步降低整体硬件成本与显存负载。
