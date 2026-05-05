@@ -41,12 +41,12 @@
    最终 reward：$r(x, y) - \beta \cdot \text{KL}$
 
 4. **Critic 估计每个 token 位置的 value**
-   输出：$V(s_t)$
-   用 GAE 计算 Advantage：$A_t = r + \gamma \cdot V(s_{t+1}) - V(s_t)$
+   输出： $V(s_t)$
+   用 GAE 计算 Advantage： $A_t = r + \gamma \cdot V(s_{t+1}) - V(s_t)$
 
 5. **PPO-Clip 更新 Actor**
-   损失：$L = \min(\text{ratio} \cdot A, \text{clip}(\text{ratio}, 1-\epsilon, 1+\epsilon) \cdot A)$
-   其中：$\text{ratio} = \dfrac{\pi_\theta(a \mid s)}{\pi_{\theta_{\text{old}}}(a \mid s)}$
+   损失： $L = \min(\text{ratio} \cdot A, \text{clip}(\text{ratio}, 1-\epsilon, 1+\epsilon) \cdot A)$
+   其中： $\text{ratio} = \dfrac{\pi_\theta(a \mid s)}{\pi_{\theta_{\text{old}}}(a \mid s)}$
 
 6. **同时更新 Critic**
    用 MSE loss 拟合 value 估计值
