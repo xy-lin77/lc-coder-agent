@@ -4,7 +4,7 @@
 
 | 模型 | 核心作用 | 额外改造 | 训练目标 & 损失函数 |
 | ---- | -------- | -------- | ------------------- |
-| Actor | SFT训练后的模型，待优化的目标生成模型 | 无 | 结合优势函数更新生成策略，约束与参考模型KL散度，无独立单模型损失，依赖PPO-Clip损失联合优化 |
+| Actor | SFT训练后的模型，待优化的目标生成模型 | 无 | 结合优势函数更新生成策略，约束与参考模型KL散度，无独立单模型损失，依赖PPO-Clip损失联合优化 <br> $L_{actor} = \mathbb{E}\Big[\min\big(\text{ratio}_t A_t,\ \text{clip}(\text{ratio}_t,1-\varepsilon,1+\varepsilon)A_t\big)\Big]$<br>$\text{ratio}_t = \dfrac{\pi_\theta(a_t\mid s_t)}{\pi_{\theta_{\text{old}}}(a_t\mid s_t)}$ |
 | Critic | SFT训练后的模型，预测从当前token位置到序列结束的未来累计总收益期望（ $V_t$ ），用于计算优势函数 | 在每一个Token的隐层状态后拼接Value预测头 | 拟合真实时序回报与GAE估值，使用MSE损失缩小预测 $V_t$ 与实际回报偏差 <br> $L = \mathbb{E}\big[(V_t - V_t^{target})^2\big]$ |
 | Reference | 冻结的SFT训练模型，固定输出分布，用于计算KL惩罚项，约束Actor更新幅度 | 无 | 无 |
 | Reward Model | 偏好打分模型，预测单条完整问答序列的全局偏好分数 $r(x,y)$，提供原始奖励信号 | 在序列最后一个Token的隐层状态上拼接Reward打分头 | 学习人类偏好排序，拉大优劣回复分数差距 <br> $L = -\log\big(r(x, y_{winner}) - r(x, y_{loser})\big)$ |
