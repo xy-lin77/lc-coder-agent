@@ -31,10 +31,10 @@
 ## 3. 交互流程
 
 1. **Actor 生成回复**  
-   <br> $y \sim \pi_\theta(y \mid x)$
+   $y \sim \pi_\theta(y \mid x)$
 
 2. **Reward Model 给回复打分**  
-   <br> $r(x, y)$
+   $r(x, y)$
 
 3. **Reference 计算 KL 惩罚**
    <br>惩罚项： $\beta \cdot \text{KL}(\pi_\theta \parallel \pi_{\text{ref}})$
@@ -46,7 +46,7 @@
 
 5. **PPO-Clip 更新 Actor**
    <br> 损失： $L = \min(\text{ratio} \cdot A, \text{clip}(\text{ratio}, 1-\epsilon, 1+\epsilon) \cdot A)$
-   <br> 其中： $\text{ratio} = \dfrac{\pi_\theta(a \mid s)}{\pi_{\theta_{\text{old}}}(a \mid s)}$
+   <br> ，其中 $\text{ratio} = \dfrac{\pi_\theta(a \mid s)}{\pi_{\theta_{\text{old}}}(a \mid s)}$
 
 6. **同时更新 Critic**
    <br> 用 MSE loss 拟合 value 估计值
