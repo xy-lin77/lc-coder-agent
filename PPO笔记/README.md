@@ -1,4 +1,4 @@
-# PPO 原理深入 + GAE 详解
+# GAE + PPO-Clip 详解
 
 ## 一、PPO 整体训练循环
 
