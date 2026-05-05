@@ -30,7 +30,7 @@
 
 ## 3. 交互流程
 1. **Actor 生成回复**  
-   固定旧策略 $\pi_{\theta_{\text{old}}}$，采样得到完整回复：$y \sim \pi_{\theta_{\text{old}}}(y \mid x)$
+   固定旧策略 $\pi_{\theta_{\text{old}}}$，采样得到完整回复： $y \sim \pi_{\theta_{\text{old}}}(y \mid x)$
 
 2. **Reward Model 给出全局偏好分数**  
    输出单条序列原始奖励： $r(x, y)$
