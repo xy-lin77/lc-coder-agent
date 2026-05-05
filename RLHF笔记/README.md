@@ -37,8 +37,8 @@
    $r(x, y)$
 
 3. **Reference 计算 KL 惩罚**
-   <br>惩罚项： $\beta \cdot \text{KL}(\pi_\theta \parallel \pi_{\text{ref}})$
-   <br>最终 reward： $r(x, y) - \beta \cdot \text{KL}$
+   <br> 惩罚项： $\beta \cdot \text{KL}(\pi_\theta \parallel \pi_{\text{ref}})$
+   <br> 最终 reward： $r(x, y) - \beta \cdot \text{KL}$
 
 4. **Critic 估计每个 token 位置的 value**
    <br> 输出： $V(s_t)$
@@ -48,7 +48,7 @@
    <br> 损失： $L = \min(\text{ratio} \cdot A, \text{clip}(\text{ratio}, 1-\epsilon, 1+\epsilon) \cdot A)$ ，其中 $\text{ratio} = \dfrac{\pi_\theta(a \mid s)}{\pi_{\theta_{\text{old}}}(a \mid s)}$
 
 6. **同时更新 Critic**
-   <br> 用 MSE loss 拟合 value 估计值
+   <br> 损失： $L = \mathbb{E}\big[(V_t - V_t^{target})^2\big]$
 
 ---
 
