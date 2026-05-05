@@ -45,8 +45,7 @@
    <br> 用 GAE 计算 Advantage： $A_t = r + \gamma \cdot V(s_{t+1}) - V(s_t)$
 
 5. **PPO-Clip 更新 Actor**
-   <br> 损失： $L = \min(\text{ratio} \cdot A, \text{clip}(\text{ratio}, 1-\epsilon, 1+\epsilon) \cdot A)$
-   <br> ，其中 $\text{ratio} = \dfrac{\pi_\theta(a \mid s)}{\pi_{\theta_{\text{old}}}(a \mid s)}$
+   <br> 损失： $L = \min(\text{ratio} \cdot A, \text{clip}(\text{ratio}, 1-\epsilon, 1+\epsilon) \cdot A)$ ，其中 $\text{ratio} = \dfrac{\pi_\theta(a \mid s)}{\pi_{\theta_{\text{old}}}(a \mid s)}$
 
 6. **同时更新 Critic**
    <br> 用 MSE loss 拟合 value 估计值
