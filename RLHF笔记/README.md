@@ -31,22 +31,22 @@
 ## 3. 交互流程
 
 1. **Actor 生成回复**  
-   $y ~ pi_theta(y | x)$
+   $y \sim \pi_\theta(y \mid x)$
 
 2. **Reward Model 给回复打分**  
-   `r(x, y)`
+   $r(x, y)$
 
 3. **Reference 计算 KL 惩罚**
-   - 惩罚项：`beta * KL(pi_theta || pi_ref)`
-   - 最终 reward：`r(x, y) - beta * KL`
+   - 惩罚项：$\beta \cdot \text{KL}(\pi_\theta \parallel \pi_{\text{ref}})$
+   - 最终 reward：$r(x, y) - \beta \cdot \text{KL}$
 
 4. **Critic 估计每个 token 位置的 value**
-   - 输出：`V(s_t)`
-   - 用 GAE 计算 Advantage：`A_t = r + gamma * V(s_{t+1}) - V(s_t)`
+   - 输出：$V(s_t)$
+   - 用 GAE 计算 Advantage：$A_t = r + \gamma \cdot V(s_{t+1}) - V(s_t)$
 
 5. **PPO-Clip 更新 Actor**
-   - 损失：`L = min(ratio * A, clip(ratio, 1 +/- epsilon) * A)`
-   - 其中：`ratio = pi_theta(a | s) / pi_theta_old(a | s)`
+   - 损失：$L = \min(\text{ratio} \cdot A, \text{clip}(\text{ratio}, 1-\epsilon, 1+\epsilon) \cdot A)$
+   - 其中：$\text{ratio} = \dfrac{\pi_\theta(a \mid s)}{\pi_{\theta_{\text{old}}}(a \mid s)}$
 
 6. **同时更新 Critic**
    - 用 MSE loss 拟合 value 估计值
