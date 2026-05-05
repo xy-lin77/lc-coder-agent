@@ -14,10 +14,10 @@
 ## 2. 微调方式
 
 ### 2.1 学术论文实现
-- **全量微调**（如 InstructGPT、Llama 2）
-  - Reward Model = SFT backbone 全量更新 + value head
-  - Critic = SFT backbone 全量更新 + value head
-  - 原因：Backbone 需要从“生成表示”转变为“评判表示”，全量微调效果最优
+#### 全量微调（如 InstructGPT、Llama 2）
+1. Reward Model = SFT backbone 全量更新 + value head
+2. Critic = SFT backbone 全量更新 + value head
+3. 原因：Backbone 需要从“生成表示”转变为“评判表示”，全量微调效果最优
 
 ### 2.2 工程实践
 #### 显存妥协方案：PPO 权重共享 + ZeRO3 + LoRA
