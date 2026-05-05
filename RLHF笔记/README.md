@@ -44,7 +44,7 @@
    <br> 基于时序折扣与回溯，用 GAE 计算优势函数 $A_t$ 与价值目标 $V_t^{target}$
 
 5. **同时更新 Actor 和 Critic 权重**
-   <br> Actor PPO-Clip 损失： $L_{\text{actor}} = \mathbb{E}\Big[\min\big(\text{ratio}_t A_t,\ \text{clip}(\text{ratio}_t,1-\varepsilon,1+\varepsilon)A_t\big)\Big]$ 其中， $\text{ratio}_t = \dfrac{\pi_\theta(a_t \mid s_t)}{\pi_{\theta_{\text{old}}}(a_t \mid s_t)}$
+   <br> Actor PPO-Clip 损失： $L_{\text{actor}} = \mathbb{E}\Big[\min\big(\text{ratio}_t A_t,\ \text{clip}(\text{ratio}_t,1-\varepsilon,1+\varepsilon)A_t\big)\Big]$ ，其中 $\text{ratio}_t = \dfrac{\pi_\theta(a_t \mid s_t)}{\pi_{\theta_{\text{old}}}(a_t \mid s_t)}$
    <br> Critic MSE 损失： $L_{\text{critic}} = \mathbb{E}\big[(V(s_t) - V_t^{target})^2\big]$
 
 6. 循环迭代，进入下一轮采样更新
