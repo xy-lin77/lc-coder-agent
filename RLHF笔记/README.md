@@ -31,7 +31,7 @@
 ## 3. 交互流程
 
 1. **Actor 生成回复**  
-   `y ~ pi_theta(y | x)`
+   $y ~ pi_theta(y | x)$
 
 2. **Reward Model 给回复打分**  
    `r(x, y)`
@@ -50,8 +50,6 @@
 
 6. **同时更新 Critic**
    - 用 MSE loss 拟合 value 估计值
-
-> 注：原生流程显存压力极大，需同时在 GPU 上维护 4 个大模型（Actor / Reference / Reward / Critic），工程中通常采用上述显存优化策略。
 
 ---
 
