@@ -37,8 +37,8 @@
    $r(x, y)$
 
 3. **Reference 计算 KL 惩罚**
-   惩罚项：$\beta \cdot \text{KL}(\pi_\theta \parallel \pi_{\text{ref}})$
-   最终 reward：$r(x, y) - \beta \cdot \text{KL}$
+   惩罚项： $\beta \cdot \text{KL}(\pi_\theta \parallel \pi_{\text{ref}})$
+   最终 reward： $r(x, y) - \beta \cdot \text{KL}$
 
 4. **Critic 估计每个 token 位置的 value**
    输出： $V(s_t)$
