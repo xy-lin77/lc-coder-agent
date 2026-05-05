@@ -36,8 +36,8 @@
    输出单条序列原始奖励：$r(x, y)$
 
 3. **Reference 计算 KL 约束惩罚**
-   <br> 逐token惩罚项：$\beta \cdot \text{KL}(\pi_{\theta_{\text{old}}} \parallel \pi_{\text{ref}})$
-   <br> 单token最终奖励：$r_t = r(x,y) - \beta \cdot \text{KL}$
+   <br> 逐token惩罚项： $\beta \cdot \text{KL}(\pi_{\theta_{\text{old}}} \parallel \pi_{\text{ref}})$
+   <br> 单token最终奖励： $r_t = r(x,y) - \beta \cdot \text{KL}$
 
 4. **Critic 逐Token预测状态价值 & 计算GAE优势**
    <br> 逐时刻输出状态价值：$V(s_t)$
