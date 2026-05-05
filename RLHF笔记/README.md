@@ -40,7 +40,7 @@
    <br> 单token最终奖励： $r_t = r(x,y) - \beta \cdot \text{KL}$
 
 4. **Critic 逐Token预测状态价值 & 计算GAE优势**
-   <br> 逐时刻输出状态价值：$V(s_t)$
+   <br> 逐时刻输出状态价值： $V(s_t)$
    <br> 基于时序折扣与回溯，用 GAE 计算优势函数 $A_t$ 与价值目标 $V_t^{target}$
 
 5. **同时更新 Actor 和 Critic 权重**
