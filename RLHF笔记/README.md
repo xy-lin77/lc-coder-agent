@@ -18,22 +18,12 @@
   - 原因：Backbone 需要从“生成表示”转变为“评判表示”，全量微调效果最优
 
 ### 2.2 工程实践（显存妥协）
-
-#### 策略 1：RM 用 LoRA，Critic 共享 RM
-- RM：`SFT + LoRA`（训练）→ merge 成全量权重（推理冻结）
-- Critic：复用 RM 权重，仅训练 value head + LoRA
-- 优势：RM/Critic 共享 Backbone，显存减半
-
-#### 策略 2：Actor & Reference 共享，Critic & Reward 共享
-- 显存仅 2 份完整权重：
-  1. Actor（训练中）+ Reference 的 LoRA Adapter（或临时 disable Adapter 算 KL）
-  2. Critic/Reward 共享 Backbone（冻结）+ Critic 的 value head（训练中）
-- 常见于 `TRL + DeepSpeed ZeRO3` 组合
-
-#### 策略 3：Reward Model 小模型化
-- Actor：7B SFT 模型（生成回复）
-- RM：1.5B 独立模型（全量微调做评判）
-- 优势：RM 无需与 Actor 同规模，显存压力大幅降低
+#### 核心最优方案：PPO 权重共享 + ZeRO3 + LoRA
+统一整合显存优化逻辑，摒弃多套独立权重冗余部署，采用分组权重共享架构：
+1. 权重复用设计：Actor 与 Reference 共享同一 SFT 主干底座，仅通过开关 LoRA 适配器区分训练与推理状态；Critic 与 Reward Model 共享主干权重，大幅削减完整模型权重占用，将显存常驻权重压缩至2份。
+2. LoRA 轻量化训练：Actor、Critic、RM 均冻结 SFT 主干，仅训练 LoRA 适配器与 Critic/RM 专属 Value 头，大幅降低可训练参数量，减少梯度、优化器显存开销，避免全量微调显存爆炸。
+3. DeepSpeed ZeRO3 分布式加持：结合权重分片、显存卸载、梯度分片能力，进一步分摊多卡显存压力，完美适配 7B/13B/34B 主流大模型。
+4. 独立小尺寸奖励模型：采用小规格独立 RM（如 1.5B 小模型）替代与 Actor 同尺寸权重，无需占用大模型显存资源，仅负责偏好打分，进一步降低整体硬件成本与显存负载。
 
 ---
 
