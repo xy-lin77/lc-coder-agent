@@ -32,7 +32,7 @@ Reward = 最终对整个回复的打分
 | `π` | Policy（策略） | 给定状态，选择动作的规则 | 语言模型本身 |
 | `γ` | Discount factor | 对未来 reward 的折扣系数 | 通常 0.99 |
 
-### 2. Return（回报）：累积 reward
+### 2. Return：累积 reward
 
 单步 reward 不够用，RL 真正关心的是**从当前时刻开始，未来所有 reward 的总和**：
 
