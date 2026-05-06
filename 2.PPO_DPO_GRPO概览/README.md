@@ -103,7 +103,7 @@ $$\mathcal{L}_{\text{DPO}} = -\mathbb{E}\left[\log\sigma\left(\beta\left(\log\fr
 
 ---
 
-## 3. 与 PPO 差异：Advantage 计算与 Reward
+## 3. 与 PPO 差异：Advantage
 
 ### 3.1 Advantage
 
@@ -115,9 +115,7 @@ $$\hat{A}_i = \frac{r_i - \text{mean}(r_1, \dots, r_G)}{\text{std}(r_1, \dots, r
 
 同一条 prompt 内，reward 高于均值的回复 $\hat{A} > 0$，低于均值的 $\hat{A} < 0$。
 
-### 3.2 Reward
-
-PPO 的 Reward 通常不能是规则函数：规则函数只能在序列末尾给出一个标量（无论是 0/1 还是加权小数），本质上是稀疏的序列级信号；而 Critic 需要在每个 token 位置估 $V(s_t)$，稀疏的末端信号很难支撑逐 token 的价值学习，训练极不稳定。RM 的优势在于能对任意前缀打分，提供相对稠密的监督
+---
 
 ## 4. 交互流程
 
