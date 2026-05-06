@@ -25,7 +25,6 @@
 2. LoRA 轻量化训练：Actor、Critic、RM 均冻结 SFT 主干，仅训练 LoRA 适配器与 Critic/RM 专属 Value 头，大幅降低可训练参数量。
 3. DeepSpeed ZeRO3 分布式加持：结合权重分片、显存卸载、梯度分片能力，进一步分摊多卡显存压力。
 4. 独立小奖励模型：采用小规格独立 RM（如 1.5B 小模型）替代与 Actor 同尺寸权重，仅负责偏好打分
-5. PPO 的 Reward 通常不能是规则函数：Critic 需要在序列中间每个 token 位置估 $V(s_t)$，依赖 RM 提供稠密、连续的分数信号来训练；规则函数只能给出序列末尾的 0/1 离散结果，Critic 无法从中获得足够的学习信号，训练极不稳定
 
 ---
 
@@ -99,12 +98,14 @@ $$\mathcal{L}_{\text{DPO}} = -\mathbb{E}\left[\log\sigma\left(\beta\left(\log\fr
 
 ### 2.2 工业界
 1. 权重共享、ZeRO3、LoRA：同 PPO，但无 Critic，常驻显存权重只需 2 份
-2. Reward 同样可以是规则函数：工业界对有明确答案的任务（数学、代码）普遍使用规则打分，省去部署 RM 的成本
-3. 推理侧批量采样压力：每条 prompt 需同时生成 $G$ 条回复，推理显存峰值高于 PPO，通常用 vLLM 等推理框架单独承担采样阶段
+2. 推理侧批量采样压力：每条 prompt 需同时生成 $G$ 条回复，通常用 vLLM 等推理框架单独承担采样阶段
+3. Reward 同样可以是规则函数：工业界对有明确答案的任务（数学、代码）普遍使用规则打分，省去部署 RM 的成本
 
 ---
 
-## 3. 与 PPO 差异：Advantage 计算
+## 3. 与 PPO 差异：Advantage 计算与 Reward
+
+### 3.1 Advantage
 
 PPO 用 Critic 逐 token 估 $V(s_t)$，再通过 GAE 回溯得到 $A_t$。
 
@@ -114,7 +115,11 @@ $$\hat{A}_i = \frac{r_i - \text{mean}(r_1, \dots, r_G)}{\text{std}(r_1, \dots, r
 
 同一条 prompt 内，reward 高于均值的回复 $\hat{A} > 0$，低于均值的 $\hat{A} < 0$。
 
-## 3. 交互流程
+### 3.2 Reward
+
+PPO 的 Reward 通常不能是规则函数：规则函数只能在序列末尾给出一个标量（无论是 0/1 还是加权小数），本质上是稀疏的序列级信号；而 Critic 需要在每个 token 位置估 $V(s_t)$，稀疏的末端信号很难支撑逐 token 的价值学习，训练极不稳定。RM 的优势在于能对任意前缀打分，提供相对稠密的监督
+
+## 4. 交互流程
 
 1. **Actor 批量采样**：对同一 prompt $x$ 采样 $G$ 条回复 $\{y_1, \dots, y_G\}$
 
