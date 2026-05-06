@@ -88,6 +88,8 @@ $$\mathcal{L}_{\text{DPO}} = -\mathbb{E}\left[\log\sigma\left(\beta\left(\log\fr
 - **RM**：同 PPO
 - 移除 Critic 模型，无价值估计、优势函数计算
 
+---
+
 ## 2. 工程实现
 
 ### 2.1 学术论文
