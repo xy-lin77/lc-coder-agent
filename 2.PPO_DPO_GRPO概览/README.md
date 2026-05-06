@@ -88,7 +88,24 @@ $$\mathcal{L}_{\text{DPO}} = -\mathbb{E}\left[\log\sigma\left(\beta\left(\log\fr
 - **RM**：同 PPO
 - 移除 Critic 模型，无价值估计、优势函数计算
 
-## 2. 与 PPO 差异：Advantage 计算
+## 2. 工程实现
+
+### 2.1 学术论文
+#### 全量微调（如 DeepSeek-R1）
+1. Actor = SFT backbone 全量更新
+2. 无 Critic，省去 PPO 中最难训练的模块
+3. Reward 通常来自规则函数（格式校验、答案正确性），无需训练 RM
+
+### 2.2 工业界
+#### 显存优化方案：权重共享 + ZeRO3 + LoRA
+1. 权重复用：Actor 与 Reference 共享同一底座，通过开关 LoRA 适配器区分；无 Critic，常驻显存权重只需 2 份，比 PPO 少一份
+2. LoRA 轻量化训练：冻结 SFT 主干，仅训练 Actor 的 LoRA 适配器
+3. DeepSpeed ZeRO3 分布式加持：同 PPO
+4. 推理侧批量采样压力：每条 prompt 需同时生成 $G$ 条回复，推理显存峰值高于 PPO，通常用 vLLM 等推理框架单独承担采样阶段
+
+---
+
+## 3. 与 PPO 差异：Advantage 计算
 
 PPO 用 Critic 逐 token 估 $V(s_t)$，再通过 GAE 回溯得到 $A_t$。
 
@@ -113,4 +130,3 @@ $$\hat{A}_i = \frac{r_i - \text{mean}(\mathbf{r})}{\text{std}(\mathbf{r})}$$
 $$L_{\text{GRPO}} = \min\left(\text{ratio} \cdot \hat{A}_i,\ \text{clip}(\text{ratio}, 1-\epsilon, 1+\epsilon) \cdot \hat{A}_i\right) - \beta \cdot \text{KL}(\pi_\theta \parallel \pi_{\text{ref}})$$
 
 5. **循环迭代，进入下一轮采样更新**
-
