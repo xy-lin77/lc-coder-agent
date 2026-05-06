@@ -72,9 +72,9 @@ $$L_{\text{Critic}} = \mathbb{E}\big[(V_t - V_t^{\text{target}})^2\big]$$
 
 3. **核心偏好损失计算**：
 
-$$\mathcal{L}_{\text{DPO}} = -\mathbb{E}\left[\log\sigma\left(\beta\left(\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \log\frac{\pi_\theta(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}\right)\right)\right]$$
+$$\mathcal{L}_{\text{DPO}} = -\mathbb{E}\left[\log\sigma\left(\beta\left(\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \log\frac{\pi_\theta(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}\right)\right)\right]$$ 其中 $\beta$ 为温度系数，用于平衡参考模型约束
 
-   其中 $\beta$ 为温度系数，用于平衡参考模型约束
+   
 
 4. **参数更新**：直接反向传播更新 Policy，Reference 全程冻结，无 Clip、GAE、多模型交替更新
 
