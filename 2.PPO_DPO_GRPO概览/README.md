@@ -70,14 +70,9 @@ $$L_{\text{Critic}} = \mathbb{E}\big[(V_t - V_t^{\text{target}})^2\big]$$
 
 2. **双模型前向计算**：Policy 和 Reference 分别计算 `y_w`、`y_l` 的对数概率
 
-3. **核心偏好损失计算**：
+3. **核心偏好损失计算**，其中 $\beta$ 为温度系数，用于平衡参考模型约束：
 
-$$\mathcal{L}_{\text{DPO}} = -\mathbb{E}\left[\log\sigma\left(\beta\left(\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \log\frac{\pi_\theta(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}\right)\right)\right]$$ 其中 $\beta$ 为温度系数，用于平衡参考模型约束
+$$\mathcal{L}_{\text{DPO}} = -\mathbb{E}\left[\log\sigma\left(\beta\left(\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \log\frac{\pi_\theta(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}\right)\right)\right]$$
 
-   
+4. **更新 Policy 权重**：直接反向传播，无 Clip、GAE、多模型交替更新
 
-4. **参数更新**：直接反向传播更新 Policy，Reference 全程冻结，无 Clip、GAE、多模型交替更新
-
-> 注：相比 PPO 四模型并行，DPO 仅需 2 个模型且无 RL 循环，训练速度更快，显存消耗更低，是工业界常用的偏好优化方案。
-
-```
