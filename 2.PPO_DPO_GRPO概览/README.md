@@ -29,23 +29,40 @@
 ---
 
 ## 3. 交互流程
-1. **Actor 生成回复**  
-   固定旧策略 $\pi_{\theta_{\text{old}}}$，采样得到完整回复： $y \sim \pi_{\theta_{\text{old}}}(y \mid x)$
+1. **Actor 生成回复**
+   - 固定旧策略 $\pi_{\theta_{\text{old}}}$，采样得到完整回复：
 
-2. **Reward Model 给出全局偏好分数**  
-   输出单条序列原始奖励： $r(x, y)$
+$$y \sim \pi_{\theta_{\text{old}}}(y \mid x)$$
+
+2. **Reward Model 给出全局偏好分数**
+   - 输出单条序列原始奖励：
+
+$$r(x, y)$$
 
 3. **Reference 计算 KL 约束惩罚**
-   <br> 逐token惩罚项： $\beta \cdot \text{KL}(\pi_{\theta_{\text{old}}} \parallel \pi_{\text{ref}})$
-   <br> 单token最终奖励： $r_t = r(x,y) - \beta \cdot \text{KL}$
+   - 逐token惩罚项：
+
+$$\beta \cdot \text{KL}(\pi_{\theta_{\text{old}}} \parallel \pi_{\text{ref}})$$
+
+   - 单token最终奖励：
+
+$$r_t = r(x,y) - \beta \cdot \text{KL}$$
 
 4. **Critic 逐Token预测状态价值 & 计算GAE优势**
-   <br> 逐时刻输出状态价值： $V(s_t)$
-   <br> 基于时序折扣与回溯，用 GAE 计算优势函数 $A_t$ 与价值目标 $V_t^{target}$
+   - 逐时刻输出状态价值：
+
+$$V(s_t)$$
+
+   - 基于时序折扣与回溯，用 GAE 计算优势函数 $A_t$ 与价值目标 $V_t^{target}$
 
 5. **同时更新 Actor 和 Critic 权重**
-   <br> Actor PPO-Clip 损失： $L = \min(\text{ratio} \cdot A, \text{clip}(\text{ratio}, 1-\epsilon, 1+\epsilon) \cdot A)$ ，其中 $\text{ratio} = \dfrac{\pi_\theta(a \mid s)}{\pi_{\theta_{\text{old}}}(a \mid s)}$
-   <br> Critic MSE 损失： $L = \mathbb{E}\big[(V_t - V_t^{target})^2\big]$
+   - Actor PPO-Clip 损失：
+
+$$L = \min\!\left(\text{ratio} \cdot A,\ \text{clip}(\text{ratio}, 1-\epsilon, 1+\epsilon) \cdot A\right), \quad \text{ratio} = \frac{\pi_\theta(a \mid s)}{\pi_{\theta_{\text{old}}}(a \mid s)}$$
+
+   - Critic MSE 损失：
+
+$$L = \mathbb{E}\big[(V_t - V_t^{target})^2\big]$$
 
 6. **循环迭代，进入下一轮采样更新**
 
@@ -72,7 +89,8 @@
    - 损失函数：
 
 $$\mathcal{L}_{\text{DPO}} = -\mathbb{E}\left[\log\sigma\left(\beta\left(\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \log\frac{\pi_\theta(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}\right)\right)\right]$$
-   - 其中 $\beta$ 为温度系数，用于平衡参考模型约束
+
+   其中 $\beta$ 为温度系数，用于平衡参考模型约束
 
 4. **参数更新**
 
