@@ -40,17 +40,19 @@ $$r_t = r(x,y) - \beta \cdot \text{KL}(\pi_{\theta_{\text{old}}} \parallel \pi_{
 
 4. **Critic 逐 Token 预测状态价值 & 计算 GAE 优势**：输出 $V(s_t)$，回溯得到优势函数 $A_t$ 与价值目标 $V_t^{\text{target}}$
 
-5. **同时更新 Actor 和 Critic 权重**
+5. **更新 Actor 权重**
 
    Actor PPO-Clip 损失：
 
 $$L_{\text{Actor}} = \min\left(\text{ratio} \cdot A,\ \text{clip}(\text{ratio}, 1-\epsilon, 1+\epsilon) \cdot A\right), \quad \text{ratio} = \frac{\pi_\theta(a \mid s)}{\pi_{\theta_{\text{old}}}(a \mid s)}$$
 
+6. **同时更新 Critic 权重**
+
    Critic MSE 损失：
 
 $$L_{\text{Critic}} = \mathbb{E}\big[(V_t - V_t^{\text{target}})^2\big]$$
 
-6. **循环迭代，进入下一轮采样更新**
+7. **循环迭代，进入下一轮采样更新**
 
 ---
 
