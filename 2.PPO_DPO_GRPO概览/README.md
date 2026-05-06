@@ -103,8 +103,6 @@ $$\mathcal{L}_{\text{DPO}} = -\mathbb{E}\left[\log\sigma\left(\beta\left(\log\fr
 
 ## 3. 与 PPO 差异：Advantage
 
-### 3.1 Advantage
-
 PPO 用 Critic 逐 token 估 $V(s_t)$，再通过 GAE 回溯得到 $A_t$。
 
 GRPO 对同一条 prompt 采样 $G$ 条回复，用**组内 reward 的相对排名**直接得到 Advantage，无需 Critic：
