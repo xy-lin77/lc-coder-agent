@@ -59,9 +59,9 @@ $$L_{\text{Critic}} = \mathbb{E}\big[(V_t - V_t^{\text{target}})^2\big]$$
 # DPO
 
 ## 1. 两个模型
-- **Policy**：SFT训练后的模型，待优化的目标生成模型（对应 PPO Actor）
+- **Policy**：对应 PPO Actor，DPO 本质上不是 RL，而是监督学习，直接对策略分布做回归，没有环境交互、没有采样循环，这种情境下用 RL 的 "Actor" 不合适，所以论文作者选择了 Policy                             
 - **Reference**：同 PPO
-- 完全移除 RM、Critic 两大模型，无价值估计、优势函数计算
+- 移除 RM、Critic，无价值估计、优势函数计算
 ---
 
 ## 2. 交互流程（无强化学习循环，一步训练）
@@ -75,4 +75,46 @@ $$L_{\text{Critic}} = \mathbb{E}\big[(V_t - V_t^{\text{target}})^2\big]$$
 $$\mathcal{L}_{\text{DPO}} = -\mathbb{E}\left[\log\sigma\left(\beta\left(\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \log\frac{\pi_\theta(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}\right)\right)\right]$$
 
 4. **更新 Policy 权重**：直接反向传播，无 Clip、GAE、多模型交替更新
+
+---
+
+# GRPO
+
+## 1. 三个模型
+
+- **Actor**：SFT训练后的模型，待优化的目标生成模型
+- **Reference**：同 PPO
+- 移除 Critic 模型，无价值估计、优势函数计算
+| | PPO | GRPO |
+|---|---|---|
+| Actor | ✓ | ✓ |
+| Critic | ✓（逐 token 估 $V$） | ✗ 移除 |
+| Reference | ✓ | ✓ |
+| Reward Model | ✓ | ✓ |
+
+## 2. 核心差异：Advantage 计算
+
+PPO 用 Critic 逐 token 估 $V(s_t)$，再通过 GAE 回溯得到 $A_t$。
+
+GRPO 对同一条 prompt 采样 $G$ 条回复，用**组内 reward 的相对排名**直接得到 Advantage，无需 Critic：
+
+$$\hat{A}_i = \frac{r_i - \text{mean}(r_1, \dots, r_G)}{\text{std}(r_1, \dots, r_G)}$$
+
+同一条 prompt 内，reward 高于均值的回复 $\hat{A} > 0$，低于均值的 $\hat{A} < 0$。
+
+## 3. 交互流程
+
+1. **Actor 批量采样**：对同一 prompt $x$ 采样 $G$ 条回复 $\{y_1, \dots, y_G\}$
+
+2. **Reward Model 打分**：对每条回复输出 $r_i = r(x, y_i)$
+
+3. **组内归一化得到 Advantage**：
+
+$$\hat{A}_i = \frac{r_i - \text{mean}(\mathbf{r})}{\text{std}(\mathbf{r})}$$
+
+4. **更新 Actor 权重**，损失与 PPO-Clip 结构相同，但 Advantage 换成 $\hat{A}_i$，并加 KL 惩罚：
+
+$$L_{\text{GRPO}} = \min\left(\text{ratio} \cdot \hat{A}_i,\ \text{clip}(\text{ratio}, 1-\epsilon, 1+\epsilon) \cdot \hat{A}_i\right) - \beta \cdot \text{KL}(\pi_\theta \parallel \pi_{\text{ref}})$$
+
+5. **循环迭代，进入下一轮采样更新**
 
