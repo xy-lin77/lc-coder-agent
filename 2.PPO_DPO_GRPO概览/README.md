@@ -99,7 +99,7 @@ $$\mathcal{L}_{\text{DPO}} = -\mathbb{E}\left[\log\sigma\left(\beta\left(\log\fr
 ### 2.2 工业界
 1. 权重共享、ZeRO3、LoRA：同 PPO，但无 Critic，常驻显存权重只需 2 份
 2. Reward 同样可以是规则函数：工业界对有明确答案的任务（数学、代码）普遍使用规则打分，省去部署 RM 的成本
-3. 推理侧批量采样压力：每条 prompt 需同时生成 $G$ 条回复，推理显存峰值高于 PPO，通常用 vLLM 等推理框架单独承担采样阶段
+3. 每条 prompt 需同时生成 $G$ 条回复，推理显存峰值高于 PPO，通常用 vLLM 等推理框架单独承担采样阶段
 
 ---
 
