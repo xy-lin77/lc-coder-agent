@@ -24,7 +24,8 @@
 1. 权重复用：Actor 与 Reference 共享同一底座，仅通过开关 LoRA 适配器区分训练与推理状态；Critic 与 Reward Model 共享主干权重。显存常驻权重减少至2份。
 2. LoRA 轻量化训练：Actor、Critic、RM 均冻结 SFT 主干，仅训练 LoRA 适配器与 Critic/RM 专属 Value 头，大幅降低可训练参数量。
 3. DeepSpeed ZeRO3 分布式加持：结合权重分片、显存卸载、梯度分片能力，进一步分摊多卡显存压力。
-4. 独立小奖励模型：采用小规格独立 RM（如 1.5B 小模型）替代与 Actor 同尺寸权重，仅负责偏好打分。
+4. 独立小奖励模型：采用小规格独立 RM（如 1.5B 小模型）替代与 Actor 同尺寸权重，仅负责偏好打分
+5. PPO 的 Reward 通常不能是规则函数：Critic 需要在序列中间每个 token 位置估 $V(s_t)$，依赖 RM 提供稠密、连续的分数信号来训练；规则函数只能给出序列末尾的 0/1 离散结果，Critic 无法从中获得足够的学习信号，训练极不稳定
 
 ---
 
@@ -99,7 +100,7 @@ $$\mathcal{L}_{\text{DPO}} = -\mathbb{E}\left[\log\sigma\left(\beta\left(\log\fr
 ### 2.2 工业界
 1. 权重共享、ZeRO3、LoRA：同 PPO，但无 Critic，常驻显存权重只需 2 份
 2. Reward 同样可以是规则函数：工业界对有明确答案的任务（数学、代码）普遍使用规则打分，省去部署 RM 的成本
-3. 每条 prompt 需同时生成 $G$ 条回复，推理显存峰值高于 PPO，通常用 vLLM 等推理框架单独承担采样阶段
+3. 推理侧批量采样压力：每条 prompt 需同时生成 $G$ 条回复，推理显存峰值高于 PPO，通常用 vLLM 等推理框架单独承担采样阶段
 
 ---
 
@@ -128,3 +129,4 @@ $$\hat{A}_i = \frac{r_i - \text{mean}(\mathbf{r})}{\text{std}(\mathbf{r})}$$
 $$L_{\text{GRPO}} = \min\left(\text{ratio} \cdot \hat{A}_i,\ \text{clip}(\text{ratio}, 1-\epsilon, 1+\epsilon) \cdot \hat{A}_i\right) - \beta \cdot \text{KL}(\pi_\theta \parallel \pi_{\text{ref}})$$
 
 5. **循环迭代，进入下一轮采样更新**
+
