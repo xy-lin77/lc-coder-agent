@@ -59,9 +59,10 @@ $$L_{\text{Critic}} = \mathbb{E}\big[(V_t - V_t^{\text{target}})^2\big]$$
 # DPO
 
 ## 1. 两个模型
-- **Policy**：对应 PPO Actor，DPO 本质上不是 RL，而是监督学习，直接对策略分布做回归，没有环境交互、没有采样循环，这种情境下用 RL 的 "Actor" 不合适，所以论文作者选择了 Policy                             
+- **Policy**：对应 PPO Actor。DPO 本质上不是 RL，而是监督学习，直接对策略分布做回归，没有环境交互、没有采样循环，这种情境下用 RL 的 "Actor" 不合适，所以论文作者选择了 Policy                             
 - **Reference**：同 PPO
 - 移除 RM、Critic，无价值估计、优势函数计算
+
 ---
 
 ## 2. 交互流程（无强化学习循环，一步训练）
@@ -82,17 +83,12 @@ $$\mathcal{L}_{\text{DPO}} = -\mathbb{E}\left[\log\sigma\left(\beta\left(\log\fr
 
 ## 1. 三个模型
 
-- **Actor**：SFT训练后的模型，待优化的目标生成模型
+- **Actor**：同 PPO
 - **Reference**：同 PPO
+- **RM**：同 PPO
 - 移除 Critic 模型，无价值估计、优势函数计算
-| | PPO | GRPO |
-|---|---|---|
-| Actor | ✓ | ✓ |
-| Critic | ✓（逐 token 估 $V$） | ✗ 移除 |
-| Reference | ✓ | ✓ |
-| Reward Model | ✓ | ✓ |
 
-## 2. 核心差异：Advantage 计算
+## 2. 与 PPO 差异：Advantage 计算
 
 PPO 用 Critic 逐 token 估 $V(s_t)$，再通过 GAE 回溯得到 $A_t$。
 
