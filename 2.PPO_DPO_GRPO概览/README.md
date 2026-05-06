@@ -11,15 +11,15 @@
 
 ---
 
-## 2. 微调方式
+## 2. 工程实现
 
-### 2.1 学术论文实现
+### 2.1 学术论文
 #### 全量微调（如 InstructGPT、Llama 2）
 1. Reward Model = SFT backbone 全量更新 + value head
 2. Critic = SFT backbone 全量更新 + value head
 3. 原因：Backbone 需要从“生成表示”转变为“评判表示”，全量微调效果最优
 
-### 2.2 工程实践
+### 2.2 工业界
 #### 显存妥协方案：PPO 权重共享 + ZeRO3 + LoRA
 1. 权重复用：Actor 与 Reference 共享同一底座，仅通过开关 LoRA 适配器区分训练与推理状态；Critic 与 Reward Model 共享主干权重。显存常驻权重减少至2份。
 2. LoRA 轻量化训练：Actor、Critic、RM 均冻结 SFT 主干，仅训练 LoRA 适配器与 Critic/RM 专属 Value 头，大幅降低可训练参数量。
@@ -54,34 +54,12 @@
 # DPO
 
 ## 1. 两个模型
-- **Policy**：基于 SFT 训练后的模型，待优化的目标模型（对应 PPO Actor）
+- **Policy**：SFT训练后的模型，待优化的目标生成模型（对应 PPO Actor）
 - **Reference**：同 PPO
-- **剔除组件**：完全移除 Reward Model、Critic 两大模型，无价值估计、优势函数计算
-
+- 完全移除 RM、Critic 两大模型，无价值估计、优势函数计算
 ---
 
-## 2. 微调方式
-
-### 2.1 学术标准做法（原生 DPO）
-- **全量微调**：Policy 全量更新，Reference 全程冻结
-- 优势：无需训练奖励模型，端到端直接优化偏好，流程极简
-
-### 2.2 工程实践（显存极致优化）
-
-#### 策略 1：Policy 用 LoRA 微调，Reference 冻结
-- 仅训练 Policy 的 LoRA 适配器，主干权重冻结
-- 显存占用：仅需 1 份完整模型权重 + 小体积 LoRA，相比 PPO 明显降低
-
-#### 策略 2：单卡适配方案
-- 推理/训练共享计算图，Reference 仅前向计算无梯度
-- 适配 7B/13B 模型单卡微调，无需 ZeRO3 分布式
-
-#### 策略 3：合并推理加速
-- 训练完成后将 LoRA 权重合并至 Policy，直接部署，无额外推理开销
-
----
-
-## 3. 交互流程（无强化学习循环，一步训练）
+## 2. 交互流程（无强化学习循环，一步训练）
 
 1. **输入构造**  
    给定指令 `x`，采样一对回复 `(y_w, y_l)`，其中 `y_w` 为偏好优胜回复，`y_l` 为劣等回复。
@@ -91,21 +69,8 @@
    - Reference：计算 `log pi_ref(y_w | x)` 和 `log pi_ref(y_l | x)`
 
 3. **核心偏好损失计算**
-   - 损失函数：
-
-```text
-L_DPO = -E[
-  log sigma(
-    beta * (
-      log(pi_theta(y_w | x) / pi_ref(y_w | x))
-      -
-      log(pi_theta(y_l | x) / pi_ref(y_l | x))
-    )
-  )
-]
-````
-
-* 其中 `beta` 为温度系数，用于平衡参考模型约束
+   - 损失函数： $\mathcal{L}_{\text{DPO}} = -\mathbb{E}\left[\log\sigma\left(\beta\left(\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \log\frac{\pi_\theta(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}\right)\right)\right]$
+   - 其中 $\beta$ 为温度系数，用于平衡参考模型约束
 
 4. **参数更新**
 
