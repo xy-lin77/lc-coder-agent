@@ -97,11 +97,9 @@ $$\mathcal{L}_{\text{DPO}} = -\mathbb{E}\left[\log\sigma\left(\beta\left(\log\fr
 3. Reward 通常来自规则函数（格式校验、答案正确性），无需训练 RM
 
 ### 2.2 工业界
-#### 显存优化方案：权重共享 + ZeRO3 + LoRA
-1. 权重复用：Actor 与 Reference 共享同一底座，通过开关 LoRA 适配器区分；无 Critic，常驻显存权重只需 2 份，比 PPO 少一份
-2. LoRA 轻量化训练：冻结 SFT 主干，仅训练 Actor 的 LoRA 适配器
-3. DeepSpeed ZeRO3 分布式加持：同 PPO
-4. 推理侧批量采样压力：每条 prompt 需同时生成 $G$ 条回复，推理显存峰值高于 PPO，通常用 vLLM 等推理框架单独承担采样阶段
+1. 权重共享、ZeRO3、LoRA：同 PPO，但无 Critic，常驻显存权重只需 2 份
+2. Reward 同样可以是规则函数：工业界对有明确答案的任务（数学、代码）普遍使用规则打分，省去部署 RM 的成本
+3. 推理侧批量采样压力：每条 prompt 需同时生成 $G$ 条回复，推理显存峰值高于 PPO，通常用 vLLM 等推理框架单独承担采样阶段
 
 ---
 
