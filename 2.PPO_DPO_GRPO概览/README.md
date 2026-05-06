@@ -69,8 +69,8 @@
    - Reference：计算 `log pi_ref(y_w | x)` 和 `log pi_ref(y_l | x)`
 
 3. **核心偏好损失计算**
-   - 损失函数： $\mathcal{L}_{\text{DPO}} = -\mathbb{E}\left[\log\sigma\left(\beta\left(\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \log\frac{\pi_\theta(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}\right)\right)\right]$
-   - 其中 $\beta$ 为温度系数，用于平衡参考模型约束
+   损失函数： $\mathcal{L}_{\text{DPO}} = -\mathbb{E}\left[\log\sigma\left(\beta\left(\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \log\frac{\pi_\theta(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}\right)\right)\right]$
+   其中 $\beta$ 为温度系数，用于平衡参考模型约束
 
 4. **参数更新**
 
