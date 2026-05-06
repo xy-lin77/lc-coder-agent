@@ -29,40 +29,26 @@
 ---
 
 ## 3. 交互流程
-1. **Actor 生成回复**  
-   固定旧策略 $\pi_{\theta_{\text{old}}}$，采样得到完整回复：
 
-$$y \sim \pi_{\theta_{\text{old}}}(y \mid x)$$
+1. **Actor 生成回复**：固定旧策略，采样完整回复 $y \sim \pi_{\theta_{\text{old}}}(y \mid x)$
 
-2. **Reward Model 给出全局偏好分数**  
-   输出单条序列原始奖励：
+2. **Reward Model 给出全局偏好分数**：输出原始奖励 $r(x, y)$
 
-$$r(x, y)$$
+3. **Reference 计算 KL 约束惩罚**：逐 token 叠加惩罚，得到单 token 最终奖励
 
-3. **Reference 计算 KL 约束惩罚**  
-   逐token惩罚项：
+$$r_t = r(x,y) - \beta \cdot \text{KL}(\pi_{\theta_{\text{old}}} \parallel \pi_{\text{ref}})$$
 
-$$\beta \cdot \text{KL}(\pi_{\theta_{\text{old}}} \parallel \pi_{\text{ref}})$$
+4. **Critic 逐 Token 预测状态价值 & 计算 GAE 优势**：输出 $V(s_t)$，回溯得到优势函数 $A_t$ 与价值目标 $V_t^{\text{target}}$
 
-   单token最终奖励：
+5. **同时更新 Actor 和 Critic 权重**
 
-$$r_t = r(x,y) - \beta \cdot \text{KL}$$
-
-4. **Critic 逐Token预测状态价值 & 计算GAE优势**  
-   逐时刻输出状态价值：
-
-$$V(s_t)$$
-
-   基于时序折扣与回溯，用 GAE 计算优势函数 $A_t$ 与价值目标 $V_t^{target}$
-
-5. **同时更新 Actor 和 Critic 权重**  
    Actor PPO-Clip 损失：
 
 $$L = \min\!\left(\text{ratio} \cdot A,\ \text{clip}(\text{ratio}, 1-\epsilon, 1+\epsilon) \cdot A\right), \quad \text{ratio} = \frac{\pi_\theta(a \mid s)}{\pi_{\theta_{\text{old}}}(a \mid s)}$$
 
    Critic MSE 损失：
 
-$$L = \mathbb{E}\big[(V_t - V_t^{target})^2\big]$$
+$$L = \mathbb{E}\big[(V_t - V_t^{\text{target}})^2\big]$$
 
 6. **循环迭代，进入下一轮采样更新**
 
@@ -78,22 +64,17 @@ $$L = \mathbb{E}\big[(V_t - V_t^{target})^2\big]$$
 
 ## 2. 交互流程（无强化学习循环，一步训练）
 
-1. **输入构造**  
-   给定指令 `x`，采样一对回复 `(y_w, y_l)`，其中 `y_w` 为偏好优胜回复，`y_l` 为劣等回复。
+1. **输入构造**：给定指令 `x`，采样一对回复 `(y_w, y_l)`，其中 `y_w` 为优胜回复，`y_l` 为劣等回复
 
-2. **双模型前向计算**  
-   Policy：计算 `log pi_theta(y_w | x)` 和 `log pi_theta(y_l | x)`  
-   Reference：计算 `log pi_ref(y_w | x)` 和 `log pi_ref(y_l | x)`
+2. **双模型前向计算**：Policy 和 Reference 分别计算 `y_w`、`y_l` 的对数概率
 
-3. **核心偏好损失计算**  
-   损失函数：
+3. **核心偏好损失计算**：
 
 $$\mathcal{L}_{\text{DPO}} = -\mathbb{E}\left[\log\sigma\left(\beta\left(\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \log\frac{\pi_\theta(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}\right)\right)\right]$$
 
    其中 $\beta$ 为温度系数，用于平衡参考模型约束
 
-4. **参数更新**  
-   直接反向传播更新 Policy，Reference 全程冻结，无 PPO 中的 Clip、GAE、多模型交替更新流程
+4. **参数更新**：直接反向传播更新 Policy，Reference 全程冻结，无 Clip、GAE、多模型交替更新
 
 > 注：相比 PPO 四模型并行，DPO 仅需 2 个模型且无 RL 循环，训练速度更快，显存消耗更低，是工业界常用的偏好优化方案。
 
