@@ -1,7 +1,5 @@
 # RL 后训练学习笔记
 
-> 点击章节标题展开复习，或直接跳转到对应 Markdown 文件。
-
 | 章节 | 主题 | 文件 |
 |------|------|------|
 | 第 0 章 | 强化学习基础（MC / TD / DQN / PG / AC / TRPO / PPO / GRPO） | [0-rl-basics.md](notes/0-rl-basics.md) |
