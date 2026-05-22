@@ -6,8 +6,7 @@
 | 第 1 章 | LLM 语境下的 V、Q 和 Advantage | [1-llm-rl.md](notes/1-llm-rl.md) |
 | 第 2 章 | PPO / DPO / GRPO 概览与对比 | [2-ppo-dpo-grpo.md](notes/2-ppo-dpo-grpo.md) |
 | 第 3 章 | GAE + PPO-Clip 详解 | [3-gae-ppo-clip.md](notes/3-gae-ppo-clip.md) |
-
-**[本项目 README](../README.md)**（SFT + GRPO 代码推理后训练方案）
+| 第 4 章 | 项目实践：Qwen2.5-7B SFT + GRPO 代码推理后训练 | [../README.md](../README.md) |
 
 ---
 
@@ -541,6 +540,9 @@ Critic 负责**看懂局面**（估计 V），Actor 负责**改进决策**（更
 
 ---
 
+<details>
+<summary><b>第 4 章 · 项目实践</b> &nbsp;—&nbsp; Qwen2.5-7B · SFT · GRPO · HumanEval · LiveCodeBench · MBPP</summary>
+
 # GRPO 代码推理后训练项目方案
 
 基于 Qwen2.5-7B-Instruct，通过 SFT + GRPO 两阶段后训练，提升模型代码推理能力，并在标准 benchmark 上量化效果。
@@ -773,3 +775,5 @@ KL 惩罚项约束 GRPO 训练后的策略不要偏离 SFT 初始化太远，防
 ## 项目价值总结
 
 这个项目完整覆盖了当前 LLM 后训练的核心技术链路：**数据构造 → SFT 冷启动 → GRPO 强化 → 可量化评测**，使用的技术栈（verl、GRPO、verifiable reward）与 DeepSeek-R1 的训练范式高度一致。
+
+</details>
