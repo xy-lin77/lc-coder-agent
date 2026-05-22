@@ -1,4 +1,4 @@
-# 📚 RL 后训练学习笔记
+# RL 后训练学习笔记
 
 > 点击章节标题展开复习，或直接跳转到对应 Markdown 文件。
 
@@ -9,12 +9,12 @@
 | 第 2 章 | PPO / DPO / GRPO 概览与对比 | [2-ppo-dpo-grpo.md](notes/2-ppo-dpo-grpo.md) |
 | 第 3 章 | GAE + PPO-Clip 详解 | [3-gae-ppo-clip.md](notes/3-gae-ppo-clip.md) |
 
-↗️ **[本项目 README →](../README.md)**（SFT + GRPO 代码推理后训练方案）
+**[本项目 README](../README.md)**（SFT + GRPO 代码推理后训练方案）
 
 ---
 
 <details>
-<summary><b>🧱 第 0 章 · 强化学习基础</b> &nbsp;—&nbsp; MC · TD · SARSA · Q-learning · DQN · Policy Gradient · REINFORCE · AC · TRPO · PPO · GRPO</summary>
+<summary><b>第 0 章 · 强化学习基础</b> &nbsp;—&nbsp; MC · TD · SARSA · Q-learning · DQN · Policy Gradient · REINFORCE · AC · TRPO · PPO · GRPO</summary>
 
 # 强化学习基础
 
@@ -153,7 +153,7 @@ $$\hat{A}_i = \frac{r_i - \text{mean}(\mathbf{r})}{\text{std}(\mathbf{r})}$$
 ---
 
 <details>
-<summary><b>🤖 第 1 章 · LLM 语境下的 V、Q 和 Advantage</b> &nbsp;—&nbsp; 状态价值 · 动作价值 · 优势函数 · Bellman 方程 · Critic 归因</summary>
+<summary><b>第 1 章 · LLM 语境下的 V、Q 和 Advantage</b> &nbsp;—&nbsp; 状态价值 · 动作价值 · 优势函数 · Bellman 方程 · Critic 归因</summary>
 
 # 理解 LLM 语境下的 V, Q 和 Advantage
 
@@ -303,7 +303,7 @@ Critic 的核心价值：把末端的一个分数，通过 Bellman 方程
 ---
 
 <details>
-<summary><b>⚙️ 第 2 章 · PPO / DPO / GRPO 概览</b> &nbsp;—&nbsp; 四模型架构 · 工程实现 · 交互流程 · 三算法对比</summary>
+<summary><b>第 2 章 · PPO / DPO / GRPO 概览</b> &nbsp;—&nbsp; 四模型架构 · 工程实现 · 交互流程 · 三算法对比</summary>
 
 # PPO
 
@@ -391,7 +391,7 @@ $$L_{\text{GRPO}} = \min\left(\text{ratio} \cdot \hat{A}_i,\ \text{clip}(\text{r
 ---
 
 <details>
-<summary><b>📐 第 3 章 · GAE + PPO-Clip 详解</b> &nbsp;—&nbsp; Critic 结构 · GAE 推导 · λ 的作用 · Clip 直觉 · 完整数据流</summary>
+<summary><b>第 3 章 · GAE + PPO-Clip 详解</b> &nbsp;—&nbsp; Critic 结构 · GAE 推导 · λ 的作用 · Clip 直觉 · 完整数据流</summary>
 
 # GAE + PPO-Clip 详解
 
