@@ -1,0 +1,23 @@
+### LLaMA-Factory LoRA merge config
+### Merges the trained LoRA adapter into the base model weights.
+###
+### Usage:
+###   llamafactory-cli export configs/sft/export_merge.yaml
+###
+### Output: checkpoints/sft/merged/  (full bf16 weights, ready for verl GRPO)
+
+### model
+model_name_or_path: /data/models/Qwen2.5-7B-Instruct
+
+### adapter
+adapter_name_or_path: checkpoints/sft/qwen2_5_7b_lora
+finetuning_type: lora
+
+### export
+export_dir: checkpoints/sft/merged
+export_size: 2             # split into 2-shard safetensors files
+export_device: cpu         # merge on CPU to avoid OOM
+export_legacy_format: false
+
+### template (must match training config)
+template: qwen
