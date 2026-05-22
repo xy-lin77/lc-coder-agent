@@ -1,0 +1,127 @@
+# =============================================================================
+# verl GRPO config — Qwen2.5-7B (post-SFT) on LeetCode problems
+# Usage:
+#   python -m verl.trainer.main_ppo \
+#       --config-path /workspace/lc-coder-agent/configs/grpo \
+#       --config-name grpo_verl
+# Platform: HKUST SuperPOD, 4x H800 80GB
+# =============================================================================
+
+defaults:
+  - _self_
+
+# ---------------------------------------------------------------------------
+# Algorithm
+# ---------------------------------------------------------------------------
+algorithm:
+  adv_estimator: grpo          # GRPO: no critic; advantages from group rewards
+  kl_ctrl:
+    type: fixed
+    kl_coef: 0.001             # low KL penalty — model stays close to SFT init
+
+# ---------------------------------------------------------------------------
+# Data
+# ---------------------------------------------------------------------------
+data:
+  train_files:
+    - data/processed/grpo/train.parquet
+  val_files:
+    - data/processed/grpo/val.parquet
+  prompt_key: prompt
+  response_key: response       # for reference (not used in rollout)
+  max_prompt_length: 512
+  max_response_length: 2048
+  train_batch_size: 256        # global batch size (prompts per update step)
+  val_batch_size: 64
+
+# ---------------------------------------------------------------------------
+# Actor / Policy model
+# ---------------------------------------------------------------------------
+actor_rollout_ref:
+  model:
+    path: checkpoints/sft/merged   # merged SFT LoRA weights (full weights)
+    enable_gradient_checkpointing: true
+    use_remove_padding: true       # pack variable-length sequences efficiently
+
+  actor:
+    strategy: fsdp                 # FSDP across 4 H800s
+    optim:
+      lr: 1.0e-6
+      weight_decay: 0.0
+      betas: [0.9, 0.95]
+    ppo_mini_batch_size: 64        # micro-batch size for policy gradient update
+    ppo_epochs: 1                  # number of PPO update passes per batch
+    entropy_coeff: 0.0
+    clip_ratio: 0.2                # PPO clip epsilon
+    grad_clip: 1.0
+    fsdp_config:
+      param_offload: false
+      optimizer_offload: false
+      wrap_policy:
+        min_num_params: 1e8
+
+  rollout:
+    name: vllm                     # use vllm engine for fast generation
+    temperature: 0.8
+    top_p: 0.95
+    top_k: -1
+    n: 8                           # GRPO group size: 8 completions per prompt
+    max_new_tokens: 2048
+    gpu_memory_utilization: 0.6    # leave headroom for FSDP actor weights
+    enforce_eager: false
+    tensor_parallel_size: 1        # vllm TP within each rollout worker
+
+  ref:
+    # Reference policy (frozen SFT model for KL computation)
+    fsdp_config:
+      param_offload: true          # offload ref weights to CPU to save HBM
+
+# ---------------------------------------------------------------------------
+# Reward
+# ---------------------------------------------------------------------------
+reward_model:
+  enable: false                    # no learned reward model; use custom fn
+
+# Custom reward function (verl loads this class via Python import path).
+# Passed as Hydra override at launch:
+#   custom_reward_fn.path=src.reward.reward_fn:CodeRewardManager
+# The class must implement __call__(data: DataProto) -> DataProto.
+custom_reward_fn:
+  path: src.reward.reward_fn       # Python module path (src/ must be on PYTHONPATH)
+  name: CodeRewardManager          # class name inside that module
+
+# ---------------------------------------------------------------------------
+# Trainer
+# ---------------------------------------------------------------------------
+trainer:
+  project_name: lc-coder-agent
+  experiment_name: grpo_qwen2_5_7b_v1
+  logger:
+    - type: wandb
+      project: lc-coder-agent
+    - type: console
+
+  n_gpus_per_node: 4               # GPUs per node (4x H800)
+  nnodes: 1
+  node_rank: 0
+  master_addr: localhost
+  master_port: 29500
+
+  total_epochs: 2
+  total_training_steps: null       # derived from data size if null
+
+  save_freq: 10                    # save checkpoint every N steps
+  val_freq: 5                      # run validation every N steps
+  val_before_train: true
+
+  default_hdfs_dir: null           # set to HDFS path if using distributed storage
+  default_local_dir: checkpoints/grpo/qwen2_5_7b_grpo
+
+  resume_mode: disable             # set to 'auto' to resume from latest checkpoint
+
+# Ray configuration (verl uses Ray for multi-process coordination)
+ray_init:
+  num_cpus: 64
+  num_gpus: 4
+
+seed: 42

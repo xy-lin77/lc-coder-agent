@@ -1,0 +1,75 @@
+# =============================================================================
+# LeetCode Coder Agent — Python Dependencies
+# Platform: HKUST SuperPOD, 4x H800 80GB
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Core ML / Training
+# -----------------------------------------------------------------------------
+torch>=2.1.0
+transformers>=4.45.0
+accelerate>=0.34.0
+peft>=0.12.0
+
+# -----------------------------------------------------------------------------
+# Data
+# -----------------------------------------------------------------------------
+datasets>=2.20.0
+pandas>=2.0.0
+pyarrow>=14.0.0
+tqdm>=4.66.0
+numpy>=1.26.0
+
+# -----------------------------------------------------------------------------
+# LLM API clients (used for data generation & evaluation)
+# -----------------------------------------------------------------------------
+openai>=1.40.0
+anthropic>=0.34.0
+
+# -----------------------------------------------------------------------------
+# System utilities
+# -----------------------------------------------------------------------------
+psutil>=5.9.0
+
+# -----------------------------------------------------------------------------
+# Evaluation
+# -----------------------------------------------------------------------------
+evaluate>=0.4.0
+# human-eval must be installed from GitHub:
+#   pip install git+https://github.com/openai/human-eval.git
+# Note: human-eval patches exec() — only install in isolated eval environments
+
+# -----------------------------------------------------------------------------
+# Observability & logging
+# -----------------------------------------------------------------------------
+wandb>=0.17.0
+loguru>=0.7.0
+
+# -----------------------------------------------------------------------------
+# Config / CLI / Display
+# -----------------------------------------------------------------------------
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+click>=8.1.0
+rich>=13.0.0
+
+# -----------------------------------------------------------------------------
+# Inference
+# -----------------------------------------------------------------------------
+vllm>=0.5.0
+
+# -----------------------------------------------------------------------------
+# NOTE: The following must be installed separately (not via pip install -r):
+#
+# LLaMA-Factory (SFT framework):
+#   git clone https://github.com/hiyouga/LLaMA-Factory.git
+#   cd LLaMA-Factory && pip install -e ".[torch,metrics]"
+#
+# verl (GRPO / RL training framework):
+#   git clone https://github.com/volcengine/verl.git
+#   cd verl && pip install -e .
+#
+# flash-attn (recommended for H800, install after torch):
+#   pip install flash-attn --no-build-isolation
+#   (requires CUDA toolkit matching your torch build; ~10 min compile time)
+# -----------------------------------------------------------------------------
