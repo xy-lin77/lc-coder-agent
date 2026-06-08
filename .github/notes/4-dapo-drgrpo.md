@@ -15,7 +15,9 @@ $$\hat{A}_i = \frac{r_i - \mathrm{mean}(r_1,\ldots,r_G)}{\mathrm{std}(r_1,\ldots
 
 每条回答内部的所有 token 共享同一个 $\hat{A}_i$。先定义第 $i$ 条回答第 $t$ 个 token 的 clipped loss：
 
-$$\ell_{i,t} = \min\bigl(\rho_{i,t}\hat{A}_i,\ \mathrm{clip}(\rho_{i,t}, 1-\epsilon, 1+\epsilon)\hat{A}_i\bigr)$$
+$$c_{i,t} = \text{clip}(\rho_{i,t}, 1-\epsilon, 1+\epsilon)$$
+
+$$\ell_{i,t} = \min(\rho_{i,t}\hat{A}_i,\ c_{i,t}\hat{A}_i)$$
 
 再对组内回答和回答内 token 求平均：
 
