@@ -559,9 +559,13 @@ GRPO 的核心是：同一个 prompt 采样多条回答，用组内 reward 归�
 
 $$\hat{A}_i = \frac{r_i - \mathrm{mean}(r_1,\ldots,r_G)}{\mathrm{std}(r_1,\ldots,r_G)}$$
 
-每条回答内部的所有 token 共享同一个 $\hat{A}_i$：
+每条回答内部的所有 token 共享同一个 $\hat{A}_i$。先定义第 $i$ 条回答第 $t$ 个 token 的 clipped loss：
 
-$$L_{\text{GRPO}} = \frac{1}{G}\sum_{i=1}^{G}\frac{1}{|o_i|}\sum_{t=1}^{|o_i|}\min\left(\rho_{i,t}\hat{A}_i,\mathrm{clip}(\rho_{i,t},1-\epsilon,1+\epsilon)\hat{A}_i\right)$$
+$$\ell_{i,t} = \min\bigl(\rho_{i,t}\hat{A}_i,\ \mathrm{clip}(\rho_{i,t}, 1-\epsilon, 1+\epsilon)\hat{A}_i\bigr)$$
+
+再对组内回答和回答内 token 求平均：
+
+$$L_{\text{GRPO}} = \frac{1}{G}\sum_{i=1}^{G}\frac{1}{|o_i|}\sum_{t=1}^{|o_i|}\ell_{i,t}$$
 
 其中：
 
