@@ -571,7 +571,7 @@ $$L_{\text{GRPO}} = \frac{1}{G}\sum_{i=1}^{G}\frac{1}{|o_i|}\sum_{t=1}^{|o_i|}\e
 
 其中：
 
-$$\rho_{i,t}=\frac{\pi_\theta(o_{i,t}\mid q,o_{i,<t})}{\pi_{\theta_{\text{old}}}(o_{i,t}\mid q,o_{i,<t})}$$
+$$\rho_{i,t} = \frac{\pi_\theta(o_{i,t}\mid q,o_{i,1:t-1})}{\pi_{\theta_\mathrm{old}}(o_{i,t}\mid q,o_{i,1:t-1})}$$
 
 ### GRPO 的特点
 
