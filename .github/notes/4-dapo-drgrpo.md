@@ -11,26 +11,26 @@ GRPO 的核心是：同一个 prompt 采样多条回答，用组内 reward 归�
 
 对每个 prompt 采样 $G$ 条回答 $o_1,\ldots,o_G$，每条回答得到一个 reward $r_i$。GRPO 用组内均值和标准差归一化：
 
-$$
+```math
 \hat{A}_i = \frac{r_i - \mathrm{mean}(r_1,\ldots,r_G)}{\mathrm{std}(r_1,\ldots,r_G)}
-$$
+```
 
 每条回答内部的所有 token 共享同一个 $\hat{A}_i$：
 
-$$
+```math
 L_{\text{GRPO}}
 = \frac{1}{G}\sum_{i=1}^{G}\frac{1}{|o_i|}\sum_{t=1}^{|o_i|}
 \min\left(
 \rho_{i,t}\hat{A}_i,
 \mathrm{clip}(\rho_{i,t},1-\epsilon,1+\epsilon)\hat{A}_i
 \right)
-$$
+```
 
 其中：
 
-$$
+```math
 \rho_{i,t}=\frac{\pi_\theta(o_{i,t}\mid q,o_{i,<t})}{\pi_{\theta_{\text{old}}}(o_{i,t}\mid q,o_{i,<t})}
-$$
+```
 
 ### GRPO 的特点
 
@@ -50,21 +50,21 @@ DAPO 可以理解为一组针对 GRPO 的工程化改造，核心目标是提升
 
 PPO / GRPO 常用对称裁剪：
 
-$$
+```math
 \mathrm{clip}(\rho,1-\epsilon,1+\epsilon)
-$$
+```
 
 DAPO 将上下界解耦：
 
-$$
+```math
 \mathrm{clip}(\rho,1-\epsilon_{\text{low}},1+\epsilon_{\text{high}})
-$$
+```
 
 并设置更高的上界：
 
-$$
+```math
 \epsilon_{\text{high}} > \epsilon_{\text{low}}
-$$
+```
 
 直觉：
 
@@ -88,15 +88,15 @@ DAPO 会优先保留 reward 有区分度的 prompt，过滤掉全对或全错的
 
 GRPO 常见写法是 **per-sequence average，再对 batch 平均**：
 
-$$
+```math
 \frac{1}{G}\sum_i \frac{1}{|o_i|}\sum_t L_{i,t}
-$$
+```
 
 DAPO 改为 **全局 token 平均**：
 
-$$
+```math
 \frac{1}{\sum_i |o_i|}\sum_i\sum_t L_{i,t}
-$$
+```
 
 差异在于：GRPO 让每条回答的总权重接近相同，DAPO 让每个 token 的权重接近相同。长链推理任务中，较长回答通常包含更多推理步骤；token-level loss 可以避免长回答在序列级平均中被过度压缩。
 
@@ -119,10 +119,10 @@ Dr.GRPO 关注的问题更集中：**GRPO 的 loss 归一化会引入长度偏�
 
 Dr.GRPO 倾向于用固定长度常数归一化，而不是用每条回答自己的长度归一化：
 
-$$
+```math
 L_{\text{Dr.GRPO}}
 = \frac{1}{G}\sum_{i=1}^{G}\frac{1}{L_{\max}}\sum_{t=1}^{|o_i|} L_{i,t}
-$$
+```
 
 其中 $L_{\max}$ 通常取最大生成长度或配置中的 response length 上限。
 
@@ -140,11 +140,29 @@ Dr.GRPO 也常与“去掉组内 std 缩放”一起讨论：只减去组内均�
 
 设 $L_{i,t}$ 表示第 $i$ 条回答第 $t$ 个 token 的 clipped policy gradient loss。
 
-| 写法 | 公式 | 谁的权重相同 | 对长度的影响 | 代表 |
-|---|---|---|---|---|
-| Per-seq per-token | $\frac{1}{G}\sum_i\frac{1}{|o_i|}\sum_t L_{i,t}$ | 每条回答权重相同 | 短回答单 token 权重大，长回答单 token 权重小 | 原始 GRPO 常见实现 |
-| Per-token | $\frac{1}{\sum_i |o_i|}\sum_i\sum_t L_{i,t}$ | 每个 token 权重相同 | 长回答因 token 更多，总权重更大 | DAPO |
-| Fixed-length seq norm | $\frac{1}{G}\sum_i\frac{1}{L_{\max}}\sum_t L_{i,t}$ | 每条回答有固定上限 | 减少短回答优势，长回答不会无限放大 | Dr.GRPO |
+| 写法 | 谁的权重相同 | 对长度的影响 | 代表 |
+|---|---|---|---|
+| Per-seq per-token | 每条回答权重相同 | 短回答单 token 权重大，长回答单 token 权重小 | 原始 GRPO 常见实现 |
+| Per-token | 每个 token 权重相同 | 长回答因 token 更多，总权重更大 | DAPO |
+| Fixed-length seq norm | 每条回答有固定上限 | 减少短回答优势，长回答不会无限放大 | Dr.GRPO |
+
+**Per-seq per-token：**
+
+```math
+\frac{1}{G}\sum_i\frac{1}{|o_i|}\sum_t L_{i,t}
+```
+
+**Per-token：**
+
+```math
+\frac{1}{\sum_i |o_i|}\sum_i\sum_t L_{i,t}
+```
+
+**Fixed-length seq norm：**
+
+```math
+\frac{1}{G}\sum_i\frac{1}{L_{\max}}\sum_t L_{i,t}
+```
 
 一个简单例子：
 
